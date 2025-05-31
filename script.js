@@ -83,3 +83,33 @@ function palindromeCheck() {
         message.textContent = `${inputValue} is not a palindrome.`;
     }
 }
+
+
+
+document.getElementById('messageButton')
+.addEventListener('click', secretMessage);
+
+function secretMessage() {
+    let ans = document.getElementById('messageInputField');
+    let dispalyAns = document.getElementById('displayMessage');
+    let message = ans.value.trim();
+    if (message === '') {
+        dispalyAns.textContent = 'Please enter a message.';
+    } else {
+        let words = message.split(' ');
+        let transformedWords = words.map(word => {
+            if (word.length === 1) {
+                return word.toUpperCase();
+            }
+            return word.charAt(0).toUpperCase() + 
+                   word.slice(1, -1) + 
+                   word.charAt(word.length - 1).toUpperCase();
+        });
+        dispalyAns.textContent = `Your secret message is: ${transformedWords.join(' ')}.`;
+    }
+}
+
+    
+    
+            
+  
