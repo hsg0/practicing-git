@@ -61,3 +61,25 @@ document.getElementById('googleButton')
 .addEventListener('click', () => {
     window.open('https://www.google.com', '_blank');
 });
+
+document.getElementById('addButton')
+.addEventListener('click', palindromeCheck);
+
+function palindromeCheck() {
+    let inputField = document.getElementById('inputField');
+    let inputValue = inputField.value.trim();
+    let message = document.getElementById('messageInput');
+    
+    if (inputValue === '') {
+        message.textContent = 'Please enter a value.';
+        return;
+    }
+    
+    let reversedValue = inputValue.split('').reverse().join('');
+    
+    if (inputValue.toLowerCase() === reversedValue.toLowerCase()) {
+        message.textContent = `${inputValue} is a palindrome!`;
+    } else {
+        message.textContent = `${inputValue} is not a palindrome.`;
+    }
+}
