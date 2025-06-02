@@ -43,6 +43,11 @@ arr.forEach((element, index) => {
         isFriend = !isFriend; // Toggle friend status
     });
 });
+
+
+
+
+
 document.getElementById('themeButton')
 .addEventListener('click', toggleTheme);
 
@@ -87,7 +92,7 @@ function palindromeCheck() {
 
 
 document.getElementById('messageButton')
-.addEventListener('click', secretMessage);
+.addEventListener('click', secretMessage, howManyLetters);
 
 function secretMessage() {
     let ans = document.getElementById('messageInputField');
@@ -109,7 +114,66 @@ function secretMessage() {
     }
 }
 
-    
-    
-            
-  
+
+function howManyLetters() {
+    let inputField = document.getElementById('messageInputField');
+    let message = inputField.value.trim();
+    let map = new Map();
+    let result = '';
+
+    for (let i = 0; i < message.length; i++) {
+        let char = message[i].toLowerCase();
+        if (char !== ' ') { // Ignore spaces
+            if (map.has(char)) {
+                map.set(char, map.get(char) + 1);
+            } else {
+                map.set(char, 1);
+            }
+        }
+    }
+
+    map.forEach((value, key) => {
+        result += `${key}: ${value}<br>`;
+    });
+
+    document.getElementById('howMany').innerHTML = result;
+}
+// Connect the button click to the function
+window.onload = function() {
+    document.getElementById('messageButton')
+    .addEventListener('click', howManyLetters);
+}
+
+function twoSumRepeatedLetters() {
+    let inputField = document.getElementById('messageInputField');
+    let message = inputField.value.trim();
+    let map = new Map();
+    let result = '';
+    let foundLetters = [];
+
+    for (let i = 0; i < message.length; i++) {
+        let char = message[i].toLowerCase();
+        if (char !== ' ' && char >= 'a' && char <= 'z') { // Only consider alphabetic characters
+            if (map.has(char)) {
+                map.set(char, map.get(char) + 1);
+                if (map.get(char) === 2 && foundLetters.length < 2) {
+                    foundLetters.push(char);
+                }
+            } else {
+                map.set(char, 1);
+            }
+        }
+    }
+
+    if (foundLetters.length === 2) {
+        result = `First two repeated letters: ${foundLetters[0]} and ${foundLetters[1]}`;
+    } else {
+        result = 'Not enough repeated letters found.';
+    }
+
+    document.getElementById('letters').textContent = result;
+}
+window.onload = function() {
+    document.getElementById('messageButton')
+    .addEventListener('click', twoSumRepeatedLetters);
+}
