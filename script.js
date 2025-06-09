@@ -359,3 +359,216 @@ window.onload = function () {
             `;
         });
 };
+// hospital class for different hospitals
+// Class Definitions
+class Hospital {
+    constructor(name, address, phone, services) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.services = services;
+    }
+
+    getHospitalDetails() {
+        return `Hospital: ${this.name}, Address: ${this.address}, Phone: ${this.phone}, Services: ${this.services.join(', ')}`;
+    }
+
+    getHospitalName() {
+        return this.name;
+    }
+
+    getHospitalAddress() {
+        return this.address;
+    }
+
+    getHospitalPhone() {
+        return this.phone;
+    }
+
+    getHospitalServices() {
+        return this.services;
+    }
+}
+
+class Patient {
+    constructor(name, age, healthIssue, hospital, healthCardNumber) {
+        this.name = name;
+        this.age = age;
+        this.healthIssue = healthIssue;
+        this.hospital = hospital;
+        this.healthCardNumber = healthCardNumber;
+    }
+
+    getPatientDetails() {
+        return `Patient: ${this.name}, Age: ${this.age}, Health Issue: ${this.healthIssue}, Hospital: ${this.hospital.getHospitalName()}, Health Card Number: ${this.healthCardNumber}`;
+    }
+
+    getPatientName() {
+        return this.name;
+    }
+
+    getPatientAge() {
+        return this.age;
+    }
+
+    getPatientHealthIssue() {
+        return this.healthIssue;
+    }
+
+    getPatientHospital() {
+        return this.hospital.getHospitalName();
+    }
+
+    getPatientHealthCardNumber() {
+        return this.healthCardNumber;
+    }
+}
+
+// Store hospitals globally for lookup
+const hospitalList = [];
+
+window.onload = function () {
+    // Add Hospital
+    document.getElementById('hospitalAdded').addEventListener('click', () => {
+
+        const name = document.getElementById('hospitalName').value;
+        const address = document.getElementById('hospitalAddress').value;
+        const phone = document.getElementById('hospitalPhone').value;
+        const services = document.getElementById('hospitalServices').value.split(',').map(s => s.trim());
+
+        if (!name || !address || !phone || services.length === 0 || services[0] === '') {
+            alert('Please fill in all hospital fields correctly.');
+            return;
+        }
+
+        const newHospital = new Hospital(name, address, phone, services);
+        hospitalList.push(newHospital); // Store for patient lookup
+
+        const display = document.querySelector('.newHospital');
+        display.innerHTML += `
+            <div style="margin-bottom: 10px;">
+                <h3>${newHospital.getHospitalName()}</h3>
+                <p>Address: ${newHospital.getHospitalAddress()}</p>
+                <p>Phone: ${newHospital.getHospitalPhone()}</p>
+                <p>Services: ${newHospital.getHospitalServices().join(', ')}</p>
+            </div>
+        `;
+
+        // Clear inputs
+        document.getElementById('hospitalName').value = '';
+        document.getElementById('hospitalAddress').value = '';
+        document.getElementById('hospitalPhone').value = '';
+        document.getElementById('hospitalServices').value = '';
+    });
+
+    // Add Patient
+    document.getElementById('patientAdded').addEventListener('click', () => {
+        const name = document.getElementById('patientName').value;
+        const age = parseInt(document.getElementById('patientAge').value);
+        const healthIssue = document.getElementById('patientHealthIssue').value;
+        const hospitalName = document.getElementById('patientHospital').value;
+        const healthCardNumber = document.getElementById('healthCardNumber').value;
+
+        if (!name || isNaN(age) || !healthIssue || !hospitalName || !healthCardNumber) {
+            alert('Please fill in all patient fields correctly.');
+            return;
+        }
+
+        // Find matching hospital
+        const matchedHospital = hospitalList.find(h => h.getHospitalName().toLowerCase() === hospitalName.toLowerCase());
+
+        if (!matchedHospital) {
+            alert(`Hospital "${hospitalName}" not found. Please add a Hospital first.`);
+            return;
+        }
+
+        const newPatient = new Patient(name, age, healthIssue, matchedHospital, healthCardNumber);
+
+        const display = document.querySelector('.newPatient');
+        display.innerHTML += `
+            <div style="margin-bottom: 10px;">
+                <h3>${newPatient.getPatientName()}</h3>
+                <p>Age: ${newPatient.getPatientAge()}</p>
+                <p>Health Issue: ${newPatient.getPatientHealthIssue()}</p>
+                <p>Hospital: ${newPatient.getPatientHospital()}</p>
+                <p>Health Card Number: ${newPatient.getPatientHealthCardNumber()}</p>
+            </div>
+        `;
+
+        // Clear inputs
+        document.getElementById('patientName').value = '';
+        document.getElementById('patientAge').value = '';
+        document.getElementById('patientHealthIssue').value = '';
+        document.getElementById('patientHospital').value = '';
+        document.getElementById('healthCardNumber').value = '';
+    });
+};
+// Remove Hospital
+document.getElementById('removeHospital').addEventListener('click', () => {
+    const hospitalName = document.getElementById('hospitalToRemove').value.trim();
+
+    if (!hospitalName) {
+        alert('Please enter the name of the hospital to remove.');
+        return;
+    }
+
+    const hospitalIndex = hospitalList.findIndex(h => h.getHospitalName().toLowerCase() === hospitalName.toLowerCase());
+
+    if (hospitalIndex === -1) {
+        alert(`Hospital "${hospitalName}" not found.`);
+        return;
+    }
+
+    // Remove the hospital from the list
+    hospitalList.splice(hospitalIndex, 1);
+
+    // Update the display
+    const display = document.querySelector('.newHospital');
+    display.innerHTML = '';
+    hospitalList.forEach(hospital => {
+        display.innerHTML += `
+            <div style="margin-bottom: 10px;">
+                <h3>${hospital.getHospitalName()}</h3>
+                <p>Address: ${hospital.getHospitalAddress()}</p>
+                <p>Phone: ${hospital.getHospitalPhone()}</p>
+                <p>Services: ${hospital.getHospitalServices().join(', ')}</p>
+            </div>
+        `;
+    });
+
+    alert(`Hospital "${hospitalName}" has been removed.`);
+
+    // Clear input
+    document.getElementById('hospitalToRemove').value = '';
+});
+// Remove Patient
+document.getElementById('removePatient').addEventListener('click', () => {
+    const healthCardNumber = document.getElementById('patientToRemove').value.trim();
+
+    if (!healthCardNumber) {
+        alert('Please enter the health card number of the patient to remove.');
+        return;
+    }
+
+    const display = document.querySelector('.newPatient');
+    const patientDivs = display.querySelectorAll('div');
+
+    let patientFound = false;
+
+    patientDivs.forEach(div => {
+        const cardNumberText = div.querySelector('p:last-child').textContent;
+        if (cardNumberText.includes(healthCardNumber)) {
+            display.removeChild(div);
+            patientFound = true;
+        }
+    });
+
+    if (patientFound) {
+        alert(`Patient with Health Card Number "${healthCardNumber}" has been removed.`);
+    } else {
+        alert(`Patient with Health Card Number "${healthCardNumber}" not found.`);
+    }
+
+    // Clear input
+    document.getElementById('patientToRemove').value = '';
+});
