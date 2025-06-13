@@ -572,3 +572,257 @@ document.getElementById('removePatient').addEventListener('click', () => {
     // Clear input
     document.getElementById('patientToRemove').value = '';
 });
+// --------------------------------------------------------------------------
+
+
+function stepOne(){
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('Step One completed');
+            resolve();
+        }, 1000);
+    });
+
+}
+function stepTwo() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('Step Two completed');
+            resolve();
+        }, 2000);
+    });
+}
+function stepThree() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('Step Three completed');
+            resolve();
+        }, 3000);
+    });
+}
+async function executeSteps() {
+    console.log('Starting steps...');
+    await stepOne();
+    await stepTwo();
+    await stepThree();
+    setTimeout(() => {
+        console.log('All steps completed');
+        const display = document.querySelector('.stepsDisplay');
+        display.innerHTML = 'All steps completed successfully!';
+    }
+    , 4000);
+}
+document.getElementById('executeStepsButton')
+.addEventListener('click', () => {
+    executeSteps();
+});
+
+// --------------------------------------------------------------------------
+
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = [
+                { id: 1, name: 'Alice' },
+                { id: 2, name: 'Bob' },
+                { id: 3, name: 'Charlie' }
+            ];
+            resolve(data);
+        }, 1500);
+    });
+}
+document.getElementById('fetchDataButton')
+.addEventListener('click', () => {
+    fetchData()
+        .then(data => {
+            const display = document.querySelector('.fetchedData');
+            display.innerHTML = '';
+            data.forEach(item => {
+                display.innerHTML += `<p>ID: ${item.id}, Name: ${item.name}</p>`;
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+});
+// --------------------------------------------------------------------------
+
+function fetchUserData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const userData = {
+                name: 'John Doe',
+                age: 30,
+                email: 'johndoe@hotmail.com',
+                address: '123 Main St, Springfield, USA'
+            };
+            resolve(userData);
+        }
+        , 2000);
+    }
+    );
+}
+function newUserData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const userData = {
+                name: 'Jane Smith',
+                age: 25,
+                email: 'janesmith@gmail.com',
+                address: '456 Elm St, Springfield, USA'
+            };
+            resolve(userData);
+        }
+        , 4500);
+    }
+    );
+}
+function displayUserData(userData) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const display = document.querySelector('.userDataDisplay');
+            display.innerHTML = `
+                <p>Name: ${userData.name}</p>
+                <p>Age: ${userData.age}</p>
+                <p>Email: ${userData.email}</p>
+                <p>Address: ${userData.address}</p>
+            `;
+            resolve();
+        }, 1000);
+    });
+}
+function fetchAndDisplayUserData() {
+    fetchUserData()
+        .then(userData => {
+            return displayUserData(userData);
+        })
+        .then(() => {
+            return newUserData();
+        })
+        .then(newUser => {
+            return displayUserData(newUser);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+document.getElementById('fetchUserDataButton')
+.addEventListener('click', () => {
+    fetchAndDisplayUserData();
+});
+// --------------------------------------------------------------------------
+
+async function fetchWeatherData(city) {
+    const apiKey = ''; // Replace with your actual OpenWeatherMap API key
+
+    try {
+        // Step 1: Get coordinates of the city using Geocoding API
+        const geoResponse = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${apiKey}`);
+        const geoData = await geoResponse.json();
+
+        if (!geoData.length) {
+            throw new Error('City not found');
+        }
+
+        const { lat, lon } = geoData[0];
+
+        // Step 2: Use coordinates to get weather data
+        const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
+        const weatherData = await weatherResponse.json();
+
+        return {
+            temperature: weatherData.main.temp,
+            condition: weatherData.weather[0].description,
+            humidity: weatherData.main.humidity,
+            windSpeed: weatherData.wind.speed
+        };
+    } catch (error) {
+        throw new Error('Error fetching weather data: ' + error.message);
+    }
+}
+
+function displayWeatherData(weatherData) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const display = document.querySelector('.weatherDisplay');
+            display.innerHTML = `
+                <p>Temperature: ${weatherData.temperature}°C</p>
+                <p>Condition: ${weatherData.condition}</p>
+                <p>Humidity: ${weatherData.humidity}%</p>
+                <p>Wind Speed: ${weatherData.windSpeed} m/s</p>
+            `;
+            resolve();
+        }, 1000);
+    });
+}
+
+document.getElementById('fetchWeatherButton').addEventListener('click', () => {
+    const city = document.getElementById('cityInput').value.trim();
+    if (!city) {
+        alert('Please enter a city name.');
+        return;
+    }
+
+    fetchWeatherData(city)
+        .then(weatherData => displayWeatherData(weatherData))
+        .catch(error => {
+            console.error('Error:', error);
+            const display = document.querySelector('.weatherDisplay');
+            display.innerHTML = `<p>${error.message}</p>`;
+        });
+});
+//----------------------------------------------------------------------------
+
+function getUserInfo(username) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            fetch(`https://api.github.com/users/${username}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('User not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    resolve({
+                        name: data.name || 'No name provided',
+                        bio: data.bio || 'No bio available',
+                        location: data.location || 'No location provided',
+                        publicRepos: data.public_repos
+                    });
+                })
+                .catch(error => reject(error));
+        }, 1000);
+    });
+}
+
+function displayUserInfo(userInfo) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const display = document.querySelector('.userInfoDisplay');
+            display.innerHTML = `
+                <p>Name: ${userInfo.name}</p>
+                <p>Bio: ${userInfo.bio}</p>
+                <p>Location: ${userInfo.location}</p>
+                <p>Public Repositories: ${userInfo.publicRepos}</p>
+            `;
+            resolve();
+        }, 1000);
+    });
+}
+
+document.getElementById('fetchUserInfoButton').addEventListener('click', () => {
+    const username = document.getElementById('usernameInput').value.trim();
+    if (!username) {
+        alert('Please enter a GitHub username.');
+        return;
+    }
+
+    getUserInfo(username)
+        .then(userInfo => displayUserInfo(userInfo))
+        .catch(error => {
+            console.error('Error:', error);
+            const display = document.querySelector('.userInfoDisplay');
+            display.innerHTML = `<p>${error.message}</p>`;
+        });
+});
